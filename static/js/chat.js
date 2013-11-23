@@ -16,8 +16,8 @@ const LOGIN_OK = 3;
 
 	state = INIT;
 	
-  conn = new WebSocket("ws://192.168.1.20:9001/ws");
-	
+  conn = new WebSocket("ws://" + window.location.host + "/ws");
+  
 	conn.onerror = function () {
 		$('div').hide();
 		document.getElementById('wrapper').style.display = "block";
