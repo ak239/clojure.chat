@@ -9,6 +9,9 @@
           [route :only [files not-found]]
           [handler :only [site]]
           [route :only [not-found]])))
+
+; todo fix max message count
+
 ; store max-id and function next-id
 (defonce max-id (atom 0))
 (defn next-id []
@@ -54,17 +57,20 @@
   (do
     (let [login (:data packet)]
       (swap! clients         assoc channel login)
-      (swap! clients-last-id assoc channel (min-msg-id))
+      (swap! clients-last-id assoc channel (- max-id 20)
+      (println packet @clients-last-id)
       (send! channel (json-str {:status "ok"})))))
 ; logout version 1
 (defn logout [channel]
   (do
     (swap! clients dissoc channel)
     (swap! clients-last-id dissoc channel)
+    (println @clients-last-id)
     (clear-old-msgs)))
 (defmethod process-packet ["logout" "1"] [packet channel]
   (do
     (logout channel)
+    (println packet)
     (send! channel (json-str {:status "ok"}))))
 ; send version 1
 (defmethod process-packet ["send" "1"] [packet channel]
@@ -74,12 +80,15 @@
         (dosync (ref-set all-msgs (conj @all-msgs {:id (next-id) :time (now) :msg text :author author})))
         (send! channel (json-str {:status "ok"}))))))
 ; fetch version 1
+(def not-nil? (complement nil?))
 (defmethod process-packet ["fetch" "1"] [packet channel]
   (let [last-id (@clients-last-id channel) cur-id (+ @max-id 1)]
     (do
-      (send! channel (json-str {:status "ok" :data (filter (fn [msg] (>= (:id msg) last-id)) @all-msgs)}))
-      (swap! clients-last-id assoc channel cur-id)
-      (clear-old-msgs))))
+      (println packet @clients-last-id)
+      (if (not-nil? last-id) (do
+        (send! channel (json-str {:status "ok" :data (filter (fn [msg] (>= (:id msg) last-id)) @all-msgs)}))
+        (swap! clients-last-id assoc channel cur-id)
+        (clear-old-msgs))))))
 ; perfomance dump version 1
 (defmethod process-packet ["dump" "1"] [packet channel] (dump))
 ; default method - simple print packet
