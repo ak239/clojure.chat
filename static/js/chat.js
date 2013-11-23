@@ -17,9 +17,7 @@ const FETCH_INTERVAL  = 1000;
 	var $i = $('#i');
 	state = INIT;
 	
-//	conn = new WebSocket("ws://" + window.location.host + "/ws");
-
-	conn = new WebSocket("ws://178.162.76.108:9001/ws");
+	conn = new WebSocket("ws://" + window.location.host + "/ws");
 	
 	conn.onerror = function () {
 		$('div').hide();
