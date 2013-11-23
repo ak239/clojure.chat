@@ -17,9 +17,7 @@ const FETCH_INTERVAL  = 1000;
 	var $i = $('#i');
 	state = INIT;
 	
-//	conn = new WebSocket("ws://" + window.location.host + "/ws");
-
-	conn = new WebSocket("ws://178.162.76.108:9001/ws");
+	conn = new WebSocket("ws://" + window.location.host + "/ws");
 	
 	conn.onerror = function () {
 		$('div').hide();
@@ -77,7 +75,10 @@ const FETCH_INTERVAL  = 1000;
 
   function add_msg (msg) {
 	var date = new Date(msg.time*1000); // multiplied by 1000 so that the argument is in milliseconds, not seconds
-	var formattedTime = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+	var h = ("0"+date.getHours()).slice(-2);
+	var m = ("0"+date.getMinutes()).slice(-2);
+	var s = ("0"+date.getSeconds()).slice(-2);
+	var formattedTime = h + ':' + m + ':' + s;
     $('#history').append('<li>' + formattedTime + " <b>" + msg.author + "</b> " + msg.msg +'</li>');
 	$("#history-wrap").scrollTop($("#history-wrap")[0].scrollHeight);
   }
